@@ -1,0 +1,81 @@
+data_dir: '/lnet/express/work/people/stankov/alignment/new-parczech/baseline/punk_asr'
+robeczech_path: 'ufal/robeczech-base'
+main_df: 'clean_segments.parquet'
+#batch_size: 256
+batch_size: 1
+dataset_workers: 8
+mp3_path: '/lnet/work/people/kopp/ParCzech/psp.cz/mp3/original_files/www.psp.cz/eknih'
+seed: 0xDEAD
+
+debug:
+  # null value
+  limit_train_batches: null
+  limit_val_batches: null
+
+logging:
+  enable_ckp: True
+  enable_pb: False
+  each_n_steps: 100
+  log_dir: '/lnet/express/work/people/stankov/alignment/Thesis/punc_restoration/final-clean-logs-tb'
+  text_logger: '/lnet/express/work/people/stankov/alignment/Thesis/punc_restoration/debug_logger.log'
+  ckp_dir: '/lnet/express/work/people/stankov/alignment/Thesis/punc_restoration/checkpoints'
+  n_worst_examples: 10
+  val_check_interval: 500
+
+audio_params:
+  random_audio: True
+  model_weights_path: "/lnet/express/work/people/stankov/alignment/Thesis/wav2vec2_ctc/models/15_epochs/model"
+  processor_path: "/lnet/express/work/people/stankov/alignment/Thesis/wav2vec2_ctc/models/15_epochs/preprocessor"
+  # backbone can be  melspectrogram, w2v2, baseline
+  backbone: 'melspectrogram'
+  use_emb: True
+  emb_do: 0.1
+  emb:
+    num_embeddings: 768
+    embedding_dim: 768
+  mel_args:
+    sample_rate: 16000
+    n_mels: 128
+  spec_args:
+    n_fft: 512
+    hop_length: 256
+    normalized: True
+    center: False
+  cnn_model:
+    layers: 7
+    strides: [2, 2, 2, 2, 1, 2, 1]
+    kernels: [2, 2, 2, 2, 2, 2, 2]
+    in_dims: [128, 128, 256, 256, 512, 512, 768]
+    out_dims: [128, 256, 256, 512, 512, 768, 768]
+    bias: True
+    normalization: 'LayerNorm'
+    # relu or gelu
+    activation: 'gelu'
+    dropout: 0.1
+    use_norm: True
+    use_do: [True, True, True, True, True, True, True]
+    freeze_backbone: True
+  t_head:
+    use_transformer: True
+    layers: 2
+    nhead: 8
+    dim_feedforward: 2048
+  t_emb:
+    use_temb: True
+    num_embeddings: 768
+    do: 0.1
+
+
+mm_encoder:
+  n_layers: 2
+
+nn:
+  padding_id: 767
+  model_params:
+    cls_dropout: 0.2
+  training_params:
+    epochs: 15
+    warmup_steps_perc: 0.2
+    lr: 5.0e-5
+    lr_decay: 0.95
+    softmax_temp: 0.1
